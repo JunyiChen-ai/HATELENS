@@ -1,0 +1,23 @@
+{
+  "name": "MHClip-English",
+  "p2c_output": "artifacts/p2c_outputs/mhclip_english.json",
+  "generated_p2c_output": "outputs/p2c_outputs/mhclip_english.json",
+  "split_dir": "data/splits/mhclip_english",
+  "raw_dataset_dir": "data/raw/Multihateclip/English",
+  "annotation_file": "annotation(new).json",
+  "embedding_dir": "outputs/embeddings/mhclip_english",
+  "frame_embedding_artifact": "artifacts/frame_embeddings/mhclip_english_frame_features.npz",
+  "label_map": {"Normal": 0, "Offensive": 1, "Hateful": 1},
+  "seed": 1077042,
+  "retrieval": {
+    "whiten": "zca",
+    "knn_type": "csls",
+    "k": 10,
+    "temp": 0.05,
+    "alpha": 0.38,
+    "thresh": -0.06
+  },
+  "gate_acc": 0.85,
+  "expected_acc": 0.8650,
+  "p2c_prompt_profile": "standard_harmful"
+}

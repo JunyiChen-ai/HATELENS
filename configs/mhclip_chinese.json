@@ -1,0 +1,23 @@
+{
+  "name": "MHClip-Chinese",
+  "p2c_output": "artifacts/p2c_outputs/mhclip_chinese.json",
+  "generated_p2c_output": "outputs/p2c_outputs/mhclip_chinese.json",
+  "split_dir": "data/splits/mhclip_chinese",
+  "raw_dataset_dir": "data/raw/Multihateclip/Chinese",
+  "annotation_file": "annotation(new).json",
+  "embedding_dir": "outputs/embeddings/mhclip_chinese",
+  "frame_embedding_artifact": "artifacts/frame_embeddings/mhclip_chinese_frame_features.npz",
+  "label_map": {"Normal": 0, "Offensive": 1, "Hateful": 1},
+  "seed": 1020042,
+  "retrieval": {
+    "whiten": "spca_r24",
+    "knn_type": "cosine",
+    "k": 20,
+    "temp": 0.15,
+    "alpha": 0.52,
+    "thresh": null
+  },
+  "gate_acc": 0.89,
+  "expected_acc": 0.8981,
+  "p2c_prompt_profile": "standard_harmful"
+}

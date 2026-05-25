@@ -1,0 +1,23 @@
+{
+  "name": "ImpliHateVid",
+  "p2c_output": "artifacts/p2c_outputs/implihatevid.json",
+  "generated_p2c_output": "outputs/p2c_outputs/implihatevid.json",
+  "split_dir": "data/splits/implihatevid",
+  "raw_dataset_dir": "data/raw/ImpliHateVid",
+  "annotation_file": "annotation(new).json",
+  "embedding_dir": "outputs/embeddings/implihatevid",
+  "frame_embedding_artifact": "artifacts/frame_embeddings/implihatevid_frame_features.npz",
+  "label_map": {"Normal": 0, "Hateful": 1},
+  "seed": 31042,
+  "retrieval": {
+    "whiten": "spca_r64",
+    "knn_type": "cosine",
+    "k": 25,
+    "temp": 0.1,
+    "alpha": 0.5,
+    "thresh": 0.28
+  },
+  "gate_acc": 0.90,
+  "expected_acc": 0.9426,
+  "p2c_prompt_profile": "implicit_video_harmful"
+}

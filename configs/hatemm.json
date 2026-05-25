@@ -1,0 +1,23 @@
+{
+  "name": "HateMM",
+  "p2c_output": "artifacts/p2c_outputs/hatemm.json",
+  "generated_p2c_output": "outputs/p2c_outputs/hatemm.json",
+  "split_dir": "data/splits/hatemm",
+  "raw_dataset_dir": "data/raw/HateMM",
+  "annotation_file": "annotation(re).json",
+  "embedding_dir": "outputs/embeddings/hatemm",
+  "frame_embedding_artifact": "artifacts/frame_embeddings/hatemm_frame_features.npz",
+  "label_map": {"Non Hate": 0, "Hate": 1},
+  "seed": 553042,
+  "retrieval": {
+    "whiten": "zca",
+    "knn_type": "cosine",
+    "k": 10,
+    "temp": 0.02,
+    "alpha": 0.5,
+    "thresh": -0.42
+  },
+  "gate_acc": 0.90,
+  "expected_acc": 0.9488,
+  "p2c_prompt_profile": "standard_harmful"
+}
