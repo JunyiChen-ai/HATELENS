@@ -1,7 +1,8 @@
 # HATELENS
 
-This repository contains the source code for the paper "HATELENS: Hateful
-Video Detection with Cues from Dual Perspectives", currently under peer review.
+This repository contains the source code for the paper "Hate Is More Than What
+We See: Precedent-Guided Structured Reasoning for Hateful Video Detection",
+currently under peer review.
 
 ## Project Structure
 
