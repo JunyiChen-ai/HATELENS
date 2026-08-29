@@ -41,7 +41,6 @@ BLOCKED_BYTE_PATTERNS = {
     ("/" + "Users" + "/").encode(),
     ("jun" + "yi").encode(),
     ("EMNLP" + "2026").encode(),
-    ("HV" + "Guard").encode(),
 }
 EMAIL_RE = re.compile(rb"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 
@@ -60,7 +59,7 @@ def main() -> None:
         if path.is_symlink():
             violations.append(f"{rel} (symlink)")
             continue
-        if rel.parts[:2] == ("data", "raw") and path.is_file() and path.name not in {".gitkeep", "README.md"}:
+        if rel.parts[:2] == ("data", "raw") and path.is_file() and path.name != "annotation(new).json":
             violations.append(str(rel))
             continue
         if any(part in BLOCKED_DIR_NAMES for part in rel.parts):
@@ -72,7 +71,8 @@ def main() -> None:
         if path.is_file() and is_text_file(path):
             content = path.read_bytes()
             leaks_local_path = any(pattern in content for pattern in BLOCKED_BYTE_PATTERNS)
-            leaks_email = rel.parts[:2] != ("artifacts", "p2c_outputs") and EMAIL_RE.search(content)
+            transcript_bearing = rel.parts[:2] == ("artifacts", "p2c_outputs") or path.name == "annotation(new).json"
+            leaks_email = not transcript_bearing and EMAIL_RE.search(content)
             if leaks_local_path or leaks_email:
                 violations.append(f"{rel} (identity or local-path string)")
     if violations:

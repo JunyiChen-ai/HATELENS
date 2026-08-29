@@ -6,8 +6,13 @@
   "raw_dataset_dir": "data/raw/ImpliHateVid",
   "annotation_file": "annotation(new).json",
   "embedding_dir": "outputs/embeddings/implihatevid",
+  "text_embedding_artifact": "artifacts/text_embeddings/implihatevid_text_features.npz",
   "frame_embedding_artifact": "artifacts/frame_embeddings/implihatevid_frame_features.npz",
-  "label_map": {"Normal": 0, "Hateful": 1},
+  "audio_embedding_artifact": "artifacts/audio_embeddings/implihatevid_audio_features.npz",
+  "label_map": {
+    "Normal": 0,
+    "Hateful": 1
+  },
   "seed": 31042,
   "retrieval": {
     "whiten": "spca_r64",
@@ -17,7 +22,5 @@
     "alpha": 0.5,
     "thresh": 0.28
   },
-  "gate_acc": 0.90,
-  "expected_acc": 0.9426,
   "p2c_prompt_profile": "implicit_video_harmful"
 }

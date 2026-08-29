@@ -3,8 +3,7 @@ logs/
 data/raw/**
 !data/raw/
 !data/raw/**/
-!data/raw/README.md
-!data/raw/**/.gitkeep
+!data/raw/**/annotation(new).json
 *.pth
 *.pt
 *.ckpt

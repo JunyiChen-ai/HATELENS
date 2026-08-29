@@ -73,6 +73,24 @@ def annotation_path(cfg) -> Path:
     return cfg.raw_dataset_dir / cfg.annotation_file
 
 
+def materialize_artifact(artifact_path: Path | None, out_path: Path, tag: str) -> bool:
+    """Load a released npz feature artifact and write it as a .pth feature dict.
+
+    Returns True when the artifact exists and was materialized, False otherwise.
+    """
+    if not artifact_path or not artifact_path.exists():
+        return False
+    archive = np.load(artifact_path)
+    features = {
+        str(video_id): torch.from_numpy(feature.copy())
+        for video_id, feature in zip(archive["video_ids"], archive["features"])
+    }
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    torch.save(features, out_path)
+    print(f"[embed-inputs] {tag} from {artifact_path}")
+    return True
+
+
 def encode_texts(texts_by_id: dict[str, str], out_path: Path, max_length: int = 128) -> None:
     tokenizer = BertTokenizer.from_pretrained(TEXT_MODEL)
     model = BertModel.from_pretrained(TEXT_MODEL).to(DEVICE).eval()
@@ -118,6 +136,9 @@ def embed_p2c(dataset: str, root: Path, source: str = "official") -> None:
 
 def embed_text(dataset: str, root: Path) -> None:
     for cfg in selected_configs(dataset, root=root):
+        out_path = cfg.embedding_dir / "text_features.pth"
+        if materialize_artifact(cfg.text_embedding_artifact, out_path, f"{cfg.name} text"):
+            continue
         rows = load_json(annotation_path(cfg))
         model = TextModel()
         features = {}
@@ -127,7 +148,6 @@ def embed_text(dataset: str, root: Path) -> None:
             text = f"{row.get('Title') or ''} {row.get('Transcript') or ''}".strip() or " "
             print(f"Processing {video_id}...")
             features[video_id] = model(text).to(DEVICE)
-        out_path = cfg.embedding_dir / "text_features.pth"
         out_path.parent.mkdir(parents=True, exist_ok=True)
         torch.save(features, out_path)
 
@@ -136,16 +156,8 @@ def embed_frames(dataset: str, root: Path, frame_interval: int = 2) -> None:
     feature_extractor = None
     vit_model = None
     for cfg in selected_configs(dataset, root=root):
-        if cfg.frame_embedding_artifact and cfg.frame_embedding_artifact.exists():
-            archive = np.load(cfg.frame_embedding_artifact)
-            features = {
-                str(video_id): torch.from_numpy(feature.copy())
-                for video_id, feature in zip(archive["video_ids"], archive["features"])
-            }
-            out_path = cfg.embedding_dir / "frame_features.pth"
-            out_path.parent.mkdir(parents=True, exist_ok=True)
-            torch.save(features, out_path)
-            print(f"[embed-inputs] {cfg.name} frames from {cfg.frame_embedding_artifact}")
+        out_path = cfg.embedding_dir / "frame_features.pth"
+        if materialize_artifact(cfg.frame_embedding_artifact, out_path, f"{cfg.name} frames"):
             continue
         if feature_extractor is None or vit_model is None:
             feature_extractor = ViTFeatureExtractor.from_pretrained(VISION_MODEL)
@@ -177,15 +189,20 @@ def embed_frames(dataset: str, root: Path, frame_interval: int = 2) -> None:
                 frame_features.append(feature)
             if frame_features:
                 features[video_id] = torch.cat(frame_features, dim=0).mean(dim=0)
-        out_path = cfg.embedding_dir / "frame_features.pth"
         out_path.parent.mkdir(parents=True, exist_ok=True)
         torch.save(features, out_path)
 
 
 def embed_audio(dataset: str, root: Path) -> None:
-    feature_extractor = AutoFeatureExtractor.from_pretrained(AUDIO_MODEL)
-    model = AutoModel.from_pretrained(AUDIO_MODEL).to(DEVICE).eval()
+    feature_extractor = None
+    model = None
     for cfg in selected_configs(dataset, root=root):
+        out_path = cfg.embedding_dir / "wavlm_audio_features.pth"
+        if materialize_artifact(cfg.audio_embedding_artifact, out_path, f"{cfg.name} audio"):
+            continue
+        if feature_extractor is None or model is None:
+            feature_extractor = AutoFeatureExtractor.from_pretrained(AUDIO_MODEL)
+            model = AutoModel.from_pretrained(AUDIO_MODEL).to(DEVICE).eval()
         rows = load_json(annotation_path(cfg))
         features = {}
         for index, row in enumerate(rows):
@@ -213,7 +230,6 @@ def embed_audio(dataset: str, root: Path) -> None:
                 print(f"  {video_id}: error - {exc}")
             if (index + 1) % 100 == 0:
                 print(f"Processed {index + 1}/{len(rows)}")
-        out_path = cfg.embedding_dir / "wavlm_audio_features.pth"
         out_path.parent.mkdir(parents=True, exist_ok=True)
         torch.save(features, out_path)
 

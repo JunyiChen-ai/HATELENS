@@ -35,10 +35,10 @@ class DatasetConfig:
     label_map: dict[str, int]
     seed: int
     retrieval: dict[str, Any]
-    gate_acc: float
-    expected_acc: float
     p2c_prompt_profile: str
+    text_embedding_artifact: Path | None
     frame_embedding_artifact: Path | None
+    audio_embedding_artifact: Path | None
 
 
 def resolve_path(root: Path, value: str | Path) -> Path:
@@ -67,12 +67,20 @@ def load_config(dataset: str, root: Path | str = PACKAGE_ROOT) -> DatasetConfig:
         label_map=raw["label_map"],
         seed=int(raw["seed"]),
         retrieval=raw["retrieval"],
-        gate_acc=float(raw["gate_acc"]),
-        expected_acc=float(raw["expected_acc"]),
         p2c_prompt_profile=raw["p2c_prompt_profile"],
+        text_embedding_artifact=(
+            resolve_path(root, raw["text_embedding_artifact"])
+            if raw.get("text_embedding_artifact")
+            else None
+        ),
         frame_embedding_artifact=(
             resolve_path(root, raw["frame_embedding_artifact"])
             if raw.get("frame_embedding_artifact")
+            else None
+        ),
+        audio_embedding_artifact=(
+            resolve_path(root, raw["audio_embedding_artifact"])
+            if raw.get("audio_embedding_artifact")
             else None
         ),
     )

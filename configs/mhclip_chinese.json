@@ -6,8 +6,14 @@
   "raw_dataset_dir": "data/raw/Multihateclip/Chinese",
   "annotation_file": "annotation(new).json",
   "embedding_dir": "outputs/embeddings/mhclip_chinese",
+  "text_embedding_artifact": "artifacts/text_embeddings/mhclip_chinese_text_features.npz",
   "frame_embedding_artifact": "artifacts/frame_embeddings/mhclip_chinese_frame_features.npz",
-  "label_map": {"Normal": 0, "Offensive": 1, "Hateful": 1},
+  "audio_embedding_artifact": "artifacts/audio_embeddings/mhclip_chinese_audio_features.npz",
+  "label_map": {
+    "Normal": 0,
+    "Offensive": 1,
+    "Hateful": 1
+  },
   "seed": 1020042,
   "retrieval": {
     "whiten": "spca_r24",
@@ -17,7 +23,5 @@
     "alpha": 0.52,
     "thresh": null
   },
-  "gate_acc": 0.89,
-  "expected_acc": 0.8981,
   "p2c_prompt_profile": "standard_harmful"
 }

@@ -1,105 +1,77 @@
 # HATELENS
 
-This repository contains the source code for the paper "Hate Is More Than What
-We See: Precedent-Guided Structured Reasoning for Hateful Video Detection",
-currently under peer review.
+Source code for "Hate Is More Than What We See: Precedent-Guided Structured
+Reasoning for Hateful Video Detection" (Findings of EMNLP 2026).
 
-## Project Structure
-
-```text
-artifacts/  official P2C outputs and frame feature artifacts
-configs/    fixed dataset, seed, and retrieval configurations
-data/       dataset root and fixed train/valid/test splits
-outputs/    generated embeddings, regenerated P2C outputs, and metrics
-scripts/    runnable preprocessing, embedding, and reproduction entry points
-src/        model, embedding, P2C Generator, and utility code
-```
-
-## Data
-
-We do not redistribute raw datasets. Please obtain the datasets from their
-original sources and follow their licenses and access terms:
-
-- HateMM: https://github.com/hate-alert/HateMM
-- MultiHateClip: https://github.com/social-ai-studio/multihateclip
-- ImpliHateVid: https://github.com/videohatespeech/Implicit_Video_Hate
-
-After downloading, place the files under `data/raw/`:
-
-```text
-data/raw/
-  HateMM/
-    annotation(new).json
-    annotation(re).json
-    frames/<Video_ID>/*.jpg
-    quad/<Video_ID>/*.jpg
-    audios/<Video_ID>.wav
-  Multihateclip/
-    English/
-      annotation(new).json
-      frames/<Video_ID>/*.jpg
-      quad/<Video_ID>/*.jpg
-      audios/<Video_ID>.wav
-    Chinese/
-      annotation(new).json
-      frames/<Video_ID>/*.jpg
-      quad/<Video_ID>/*.jpg
-      audios/<Video_ID>.wav
-  ImpliHateVid/
-    annotation(new).json
-    frames/<Video_ID>/*.jpg
-    quad/<Video_ID>/*.jpg
-    audios/<Video_ID>.wav
-```
-
-To facilitate reproduction, this repository includes fixed P2C Generator outputs
-and frame feature artifacts under `artifacts/`. Generated embeddings and metrics
-are written to `outputs/`.
-
-## Environment
-
-Install dependencies from the repository root:
+## Setup
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Run
+Python 3.12 and a CUDA GPU are recommended. Reference hardware: NVIDIA RTX
+5090, PyTorch 2.8, CUDA 12.8. The scripts download `bert-base-uncased` from
+Hugging Face on first run.
 
-Reproduce the main performance results from the repository root. This uses the
-included P2C outputs and frame feature artifacts; it does not rerun the LLM.
+## Reproduce Main Results
+
+No raw data is needed: the official P2C outputs and text/frame/audio feature
+vectors ship under `artifacts/`.
 
 ```bash
 python scripts/embed_p2c.py --dataset all
 python scripts/embed_inputs.py --dataset all --only frames
 python scripts/embed_inputs.py --dataset all --only text
 python scripts/embed_inputs.py --dataset all --only audio
-python scripts/reproduce_main.py --dataset all
+python scripts/reproduce_main.py --dataset all --out outputs/main_results.json
 ```
 
-## Optional Preprocessing
+Metrics (ACC/F1/P/R) are printed per dataset and written to the `--out` path.
+Small deviations from the reported numbers can occur on different GPU models
+or library versions.
 
-If only raw videos are available, prepare frames, quad images, and audio:
+## Regenerating from Raw Data (Optional)
+
+Annotation files (`Video_ID`, `Title`, `Transcript`, `Label` per video) are
+included under `data/raw/`. Videos, frames, and audio are not redistributed;
+obtain them from the original sources:
+
+- HateMM: https://github.com/hate-alert/HateMM
+- MultiHateClip: https://github.com/social-ai-studio/multihateclip
+- ImpliHateVid: https://github.com/videohatespeech/Implicit_Video_Hate
+
+```text
+data/raw/
+  HateMM/
+    annotation(new).json
+    frames/<Video_ID>/*.jpg
+    quad/<Video_ID>/*.jpg
+    audios/<Video_ID>.wav
+  Multihateclip/
+    English/   (same layout)
+    Chinese/   (same layout)
+  ImpliHateVid/  (same layout)
+```
+
+To regenerate a modality from raw data, delete the matching
+`artifacts/*_embeddings/*.npz` and rerun `embed_inputs.py`.
+
+Prepare frames, quad images, and audio from raw videos (requires `ffmpeg`):
 
 ```bash
 python scripts/preprocess.py --raw-video-dir /path/to/videos --dataset-dir data/raw/HateMM
 ```
 
-Repeat for each dataset directory as needed.
-
-## Optional P2C Generation
-
-The official P2C outputs are already included in `artifacts/p2c_outputs/`.
-To regenerate P2C outputs after preparing quad images:
+Regenerate P2C outputs (written to `outputs/p2c_outputs/`, the official
+artifacts are not overwritten):
 
 ```bash
 export OPENAI_API_KEY=...
 python scripts/generate_p2c.py --dataset HateMM --max-concurrent 10
-```
-
-Regenerated P2C outputs are written to `outputs/p2c_outputs/` and do not
-overwrite the official artifacts. To embed regenerated outputs:
-
-```bash
 python scripts/embed_p2c.py --dataset HateMM --source generated
 ```
+
+## Acknowledgement
+
+This project's development referenced
+[HVGuard](https://github.com/yihengjingWHU/HVGuard) (Jing et al., EMNLP 2025).

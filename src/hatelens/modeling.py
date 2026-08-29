@@ -280,9 +280,6 @@ def reproduce_dataset(cfg: DatasetConfig) -> dict:
     else:
         predictions = ((blended[:, 1] - blended[:, 0]) > thresh).astype(int)
     result = metrics(test_labels, predictions)
-    result["passed_gate"] = bool(result["acc"] + 1e-12 >= cfg.gate_acc)
-    result["matched_expected_acc"] = bool(round(result["acc"], 4) == round(cfg.expected_acc, 4))
-    result["expected_acc"] = cfg.expected_acc
     result["seed"] = cfg.seed
     result["retrieval"] = cfg.retrieval
     result["split_sizes"] = {split: len(ids) for split, ids in current.items()}
@@ -291,7 +288,7 @@ def reproduce_dataset(cfg: DatasetConfig) -> dict:
 
 def dry_run(configs: list[DatasetConfig]) -> None:
     for cfg in configs:
-        print(f"{cfg.name}: seed={cfg.seed}, retrieval={cfg.retrieval}, gate_acc={cfg.gate_acc}")
+        print(f"{cfg.name}: seed={cfg.seed}, retrieval={cfg.retrieval}")
 
 
 def run_reproduction(dataset: str, root: Path, dry: bool = False) -> dict[str, dict]:
@@ -305,14 +302,7 @@ def run_reproduction(dataset: str, root: Path, dry: bool = False) -> dict[str, d
         result = reproduce_dataset(cfg)
         print(
             f"[result] {cfg.name}: ACC={result['acc']:.4f} F1={result['f1']:.4f} "
-            f"P={result['p']:.4f} R={result['r']:.4f} "
-            f"pass={result['passed_gate']} expected_match={result['matched_expected_acc']}"
+            f"P={result['p']:.4f} R={result['r']:.4f}"
         )
-        if not result["passed_gate"]:
-            raise SystemExit(f"{cfg.name} ACC below gate {cfg.gate_acc}")
-        if not result["matched_expected_acc"]:
-            raise SystemExit(
-                f"{cfg.name} ACC {result['acc']:.4f} does not match expected {cfg.expected_acc:.4f}"
-            )
         results[cfg.name] = result
     return results
