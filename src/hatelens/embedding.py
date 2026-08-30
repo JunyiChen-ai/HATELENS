@@ -74,10 +74,6 @@ def annotation_path(cfg) -> Path:
 
 
 def materialize_artifact(artifact_path: Path | None, out_path: Path, tag: str) -> bool:
-    """Load a released npz feature artifact and write it as a .pth feature dict.
-
-    Returns True when the artifact exists and was materialized, False otherwise.
-    """
     if not artifact_path or not artifact_path.exists():
         return False
     archive = np.load(artifact_path)

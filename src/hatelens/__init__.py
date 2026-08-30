@@ -1,4 +1,3 @@
-"""HATELENS release package."""
 
 __all__ = ["__version__"]
 
